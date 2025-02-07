@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.RobotHardware.Hardware;
+
 @Autonomous
 public class help extends LinearOpMode {
     //Hardware and variables
@@ -36,6 +38,7 @@ public class help extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         //All movement happen
+        Hardware hw = new Hardware(hardwareMap);
         frontLeft = hardwareMap.dcMotor.get("frontLeft");
         backLeft = hardwareMap.dcMotor.get("backLeft");
         frontRight = hardwareMap.dcMotor.get("frontRight");
@@ -103,6 +106,31 @@ public class help extends LinearOpMode {
             backLeft.setPower(0.5);
             backRight.setPower(-0.5);
         }run.reset();
+
+        hw.blueLift.setTargetPosition(-3250);
+        hw.blackLift.setTargetPosition(-3250);
+
+        hw.blackLift.setPower(.3);
+        hw.blueLift.setPower(.3);
+        hw.blackLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        hw.blueLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+
+        // Wait until there
+        while (hw.blackLift.getCurrentPosition() > -3250 && !isStopRequested()) {
+            sleep(1);
+        }
+
+        hw.blueLift.setTargetPosition(0);
+        hw.blackLift.setTargetPosition(0);
+
+        hw.blackLift.setPower(.3);
+        hw.blueLift.setPower(.3);
+        hw.blackLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        hw.blueLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        while (hw.blackLift.getCurrentPosition() < 0 && !isStopRequested()) {
+            sleep(5500);
+        } run.reset();
         while (run.milliseconds() <1800 && !isStopRequested()){
             frontLeft.setPower(0.5);
             frontRight.setPower(-0.5);

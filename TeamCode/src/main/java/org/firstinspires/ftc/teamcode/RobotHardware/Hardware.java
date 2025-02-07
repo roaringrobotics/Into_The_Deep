@@ -43,8 +43,8 @@ public class Hardware {
         blackLift = hardwareMap.dcMotor.get("blackLift");
 
         // Set mode and reset encoder.
-        blueLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        blackLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        blueLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        blackLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         // Reverse direction of blue lift.
         blueLift.setDirection(DcMotorSimple.Direction.REVERSE);
