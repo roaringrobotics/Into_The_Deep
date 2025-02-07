@@ -35,7 +35,7 @@ public class clip extends LinearOpMode {
         ElapsedTime run = new ElapsedTime();
         double drivePower = 0.20;
         double[] targetDistance = {
-                26,
+                25,
                 -5.0
         };
 
@@ -109,8 +109,8 @@ public class clip extends LinearOpMode {
         hw.backLeft.setPower(0);
         hw.backRight.setPower(0);
         //rotate
-        hw.blueLift.setTargetPosition(-3000);
-        hw.blackLift.setTargetPosition(-3000);
+        hw.blueLift.setTargetPosition(-2900);
+        hw.blackLift.setTargetPosition(-2900);
 
         hw.blackLift.setPower(.3);
         hw.blueLift.setPower(.3);
@@ -136,7 +136,8 @@ public class clip extends LinearOpMode {
         hw.blueLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         while (hw.blackLift.getCurrentPosition() < 0 && !isStopRequested()) {
             sleep(10);
-
+            hw.blackGrip.setPosition(0);
+            hw.blueGrip.setPosition(1);
         }
         run.reset();
 
