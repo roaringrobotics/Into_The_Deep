@@ -102,7 +102,7 @@ public class teleTester extends LinearOpMode {
 
     }
 
-    private void controlResetImu() {
+    private void controlResetImu() throws InterruptedException {
         // Reset imu if options is pressed.
         if (gamepad1.options) {
             hw.imuPos.reset();
@@ -206,9 +206,11 @@ public class teleTester extends LinearOpMode {
         // Check joystick to control grip.
         // using gamepad 2.
         if (gamepad2.a) {
+            //close grip
             hw.blueGrip.setPosition(1);
             hw.blackGrip.setPosition(0);
         } else if (gamepad2.b) {
+            // open grip
             hw.blueGrip.setPosition(0);
             hw.blackGrip.setPosition(1);
         }

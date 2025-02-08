@@ -7,9 +7,9 @@ import org.firstinspires.ftc.teamcode.Units;
 // Implemented by ImuImpl and PinpointImpl.
 public interface ImuPositionWrapper {
     // Reset the IMU heading and position if possible.
-    void reset();
+    void reset() throws InterruptedException;
 
-    void resetHeading();
+    void resetHeading() throws InterruptedException;
 
     // Get heading in degrees.
     double getHeading(Units.AngularUnit units);

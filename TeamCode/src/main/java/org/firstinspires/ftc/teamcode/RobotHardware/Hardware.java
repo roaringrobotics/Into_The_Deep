@@ -93,5 +93,9 @@ public class Hardware {
     // ImuWrapper is implemented for IMU or Pinpoint.
     public ImuPositionWrapper imuPos;
 
+    public int closeBlueGrip = 1;
+    public int closeBlackGrip = 0;
+    public int openBlueGrip = 0;
+    public int openBlackGrip = 1;
 
 }

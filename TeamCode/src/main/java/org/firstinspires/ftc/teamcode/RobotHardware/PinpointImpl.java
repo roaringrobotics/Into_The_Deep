@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.RobotHardware;
 
+import static java.lang.Thread.sleep;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.Constants;
@@ -18,14 +20,15 @@ public class PinpointImpl implements ImuPositionWrapper {
     }
 
     @Override
-    public void reset() {
+    public void reset() throws InterruptedException {
         pp.resetPosAndIMU();
+        sleep(500);
     }
 
     @Override
-    public void resetHeading()
-    {
+    public void resetHeading() throws InterruptedException {
         pp.recalibrateIMU();
+        sleep(500);
     }
 
     @Override

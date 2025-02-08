@@ -130,7 +130,7 @@ public class ITDTeleop extends LinearOpMode {
 
     }
 
-    private void controlResetImu() {
+    private void controlResetImu() throws InterruptedException {
         // Reset imu if options is pressed.
         if (gamepad1.options) {
             hw.imuPos.reset();
