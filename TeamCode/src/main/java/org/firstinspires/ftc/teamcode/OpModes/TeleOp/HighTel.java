@@ -17,6 +17,8 @@ public class HighTel extends LinearOpMode {
 
         FieldCentricPowerLevels fieldCentricPowerLevels = new FieldCentricPowerLevels();
 
+        hw.imuPos.reset();
+
         initializeExtenderGripPositions();
 
         waitForStart();
@@ -132,7 +134,7 @@ public class HighTel extends LinearOpMode {
     private void controlResetImu() {
         // Reset imu if options is pressed.
         if (gamepad1.options) {
-            hw.imuPos.reset();
+            hw.imuPos.resetHeading();
         }
     }
 
