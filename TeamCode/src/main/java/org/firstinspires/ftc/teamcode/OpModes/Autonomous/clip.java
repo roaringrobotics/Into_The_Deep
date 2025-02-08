@@ -25,6 +25,9 @@ public class clip extends LinearOpMode {
         //All movement happen
         Hardware hw = new Hardware(hardwareMap);
 
+//        hw.blueExtend.setPosition(0.05);
+//        hw.blackExtend.setPosition(0.95);
+
 
         hw.frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         hw.backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -33,39 +36,50 @@ public class clip extends LinearOpMode {
         hw.frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         hw.frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         ElapsedTime run = new ElapsedTime();
-        double drivePower = 0.20;
+        double drivePower = 0.30;
+
+
+
+
+
+
+
 
 
         double[] targetDistance = {
                 23.0,
-                -5.0,
+                -4.0,
                 30.0,
                 -3300,
                 -2505,
-                -100
+                -200
         };
 
         hw.blueGrip.setPosition(hw.closeBlueGrip);
         hw.blackGrip.setPosition(hw.closeBlackGrip);
         sleep(1000);
+
+
+        waitForStart();
+
         hw.blueLift.setTargetPosition((int) targetDistance[5]);
         hw.blackLift.setTargetPosition((int) targetDistance[5]);
         hw.blackLift.setPower(.3);
         hw.blueLift.setPower(.3);
         hw.blackLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         hw.blueLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        waitForStart();
         hw.blackLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         hw.blueLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // Resets the timer upon starting
 //        run.reset();
         hw.imuPos.reset();
+        hw.imuPos.update();
         double xt = hw.imuPos.getPosX();
         double yt = hw.imuPos.getPosY();
         double hDelta = hw.imuPos.getHeading(Units.AngularUnit.Degree);
         double correction = correction(hDelta);
-        sleep(1500);
+        BasicTelemetry(hw, xt, yt, correction, drivePower);
+
         // While loop that moves it straight
         while (hw.imuPos.getPosY() < targetDistance[0] && !isStopRequested()) {
             sleep(1);
@@ -106,8 +120,8 @@ public class clip extends LinearOpMode {
         hw.blueLift.setTargetPosition((int) targetDistance[3]);
         hw.blackLift.setTargetPosition((int) targetDistance[3]);
 
-        hw.blackLift.setPower(.3);
-        hw.blueLift.setPower(.3);
+        hw.blackLift.setPower(.6);
+        hw.blueLift.setPower(.6);
         hw.blackLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         hw.blueLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
@@ -133,6 +147,8 @@ public class clip extends LinearOpMode {
             correction = correction(hDelta);
             BasicTelemetry(hw, xt, yt, correction, drivePower);
         }
+//        hw.blueExtend.setPosition(0.80);
+//        hw.blackExtend.setPosition(0.20);
 
         hw.blueLift.setTargetPosition((int) targetDistance[4]);
         hw.blackLift.setTargetPosition((int) targetDistance[4]);
@@ -145,16 +161,42 @@ public class clip extends LinearOpMode {
             sleep(20);
         }
 
-
+        hw.frontLeft.setPower(0);
+        hw.frontRight.setPower(0);
+        hw.backLeft.setPower(0);
+        hw.backRight.setPower(0);
         run.reset();
-        while (run.milliseconds() < 100000 && !isStopRequested()) {
+        while (hw.blackLift.getCurrentPosition() < ((int) targetDistance[4] - 100) && !isStopRequested()) {
+            hw.blueLift.setTargetPosition((int) targetDistance[4] - 100);
+            hw.blackLift.setTargetPosition((int) targetDistance[4] - 100);
+            hw.blackLift.setPower(0.5);
+            hw.blueLift.setPower(0.5);
+            hw.blackLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            hw.blueLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            hw.blueGrip.setPosition(0.05);
+            hw.blackGrip.setPosition(0.95);
+        }
+
+        while (hw.blackLift.getCurrentPosition() < -2505 && !isStopRequested()) {
             BasicTelemetry(hw, xt, yt, correction, drivePower);
-            hw.blueGrip.setPosition(hw.openBlueGrip);
-            hw.blackGrip.setPosition(hw.openBlackGrip);
             sleep(20);
         }
 
-
+        while (hw.imuPos.getPosY() < targetDistance[0] && !isStopRequested()) {
+            sleep(1);
+            hw.frontLeft.setPower(-drivePower + correction);
+            hw.frontRight.setPower(-drivePower - correction);
+            hw.backLeft.setPower(-drivePower + correction);
+            hw.backRight.setPower(-drivePower - correction);
+            hw.imuPos.update();
+            hDelta = hw.imuPos.getHeading(Units.AngularUnit.Degree);
+            correction = correction(hDelta);
+            BasicTelemetry(hw, xt, yt, correction, drivePower);
+        }
+        while (run.milliseconds() < 100000 && !isStopRequested()) {
+            BasicTelemetry(hw, xt, yt, correction, drivePower);
+            sleep(20);
+        }
     }
 
     private void BasicTelemetry(Hardware hw, double xt, double yt, double correction, double drivePower) {
@@ -165,11 +207,14 @@ public class clip extends LinearOpMode {
                 "X", xt,
                 "bluePos", hw.blueLift.getCurrentPosition(),
                 "blackPos", hw.blackLift.getCurrentPosition(),
+                "buGripPos", hw.blueGrip.getPosition(),
+                "baGripPos", hw.blackGrip.getPosition(),
                 "blueTrgt", hw.blueLift.getTargetPosition(),
                 "blackTrgt", hw.blackLift.getTargetPosition(),
                 "Y", yt,
                 "correction", correction,
-                "Power", drivePower);
+                "Power", drivePower
+                );
     }
 
     private double correction(double headingDelta) {
