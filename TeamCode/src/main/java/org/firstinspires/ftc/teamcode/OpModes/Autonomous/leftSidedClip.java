@@ -15,241 +15,216 @@ import java.util.ArrayList;
 
 @Autonomous
 public class leftSidedClip extends LinearOpMode {
-    //Hardware and variables
-    Hardware hw;
+
 
     ElapsedTime run = new ElapsedTime();
 
     @Override
     public void runOpMode() throws InterruptedException {
-        //All movement happen
+        //Hardware adjustments
         Hardware hw = new Hardware(hardwareMap);
-
-//        hw.blueExtend.setPosition(0.05);
-//        hw.blackExtend.setPosition(0.95);
-
-
         hw.frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         hw.backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         hw.backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         hw.backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         hw.frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         hw.frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        ElapsedTime run = new ElapsedTime();
+        //Variables
         double drivePower = 0.60;
         double strafPower = 0.5;
-
-
         double millisecondsPower = 0;
-
-
-        double[] targetDistance = {
-                20.0,
-                30.2,
-                -2480,
-                -3350,
-                0,
-                -200,
-                17.6,
-                12.4,
-                83.0
-        };
-
+        double liftPower = 0.3;
+        int liftTPos = -200;
+        double TDis = 20.0;
+        double TSec = 500;
+        //Set grip positions & power behavior
         hw.blueGrip.setPosition(hw.closeBlueGrip);
         hw.blackGrip.setPosition(hw.closeBlackGrip);
-        sleep(1000);
 
+
+        hw.blackLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        hw.blueLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        sleep(250);
 
         waitForStart();
 
-        hw.blueLift.setTargetPosition((int) targetDistance[5]);
-        hw.blackLift.setTargetPosition((int) targetDistance[5]);
-        hw.blackLift.setPower(.3);
-        hw.blueLift.setPower(.3);
-        hw.blackLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        hw.blueLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        hw.blackLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        hw.blueLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //set up after start
+        // Function to set lift position
+        SetLiftPos(hw, run, liftTPos, true, liftPower);
+
         // Resets the timer upon starting
-//        run.reset();
+        run.reset();
+
+        // Sets Telemetry and other varibles
         hw.imuPos.reset();
         hw.imuPos.update();
+        // to take the delta for positions
         double xt = hw.imuPos.getPosX();
         double yt = hw.imuPos.getPosY();
+
         double hDelta = hw.imuPos.getHeading(Units.AngularUnit.Degree);
+        //fix drifting
         double correction = correction(hDelta);
-        BasicTelemetry(hw, xt, yt, correction, drivePower);
+        BasicTelemetry(hw, correction, drivePower);
 
-        // While loop that moves it straight
-        while (hw.imuPos.getPosY() < targetDistance[0] && !isStopRequested()) {
-            sleep(1);
-            hw.frontLeft.setPower(drivePower + correction);
-            hw.frontRight.setPower(drivePower - correction);
-            hw.backLeft.setPower(drivePower + correction);
-            hw.backRight.setPower(drivePower - correction);
-            hw.imuPos.update();
-            hDelta = hw.imuPos.getHeading(Units.AngularUnit.Degree);
-            correction = correction(hDelta);
-            BasicTelemetry(hw, xt, yt, correction, drivePower);
-        }
-        run.reset();
-        //starfe right
+        // Function that drives it straight
+        driveStraight(hw, false, TDis, drivePower);
 
-        while (run.milliseconds() < 500 && !isStopRequested()) {
-            hw.frontLeft.setPower(strafPower);
-            hw.frontRight.setPower(-strafPower);
-            hw.backLeft.setPower(-strafPower);
-            hw.backRight.setPower(strafPower);
-            hw.imuPos.update();
-            hDelta = hw.imuPos.getHeading(Units.AngularUnit.Degree);
-            correction = correction(hDelta);
-            BasicTelemetry(hw, xt, yt, correction, drivePower);
-        }
+        //Function that drives it strafe
+        driveStrafeMilli(true, TSec, hw, strafPower);
 
-
-//        while (hw.imuPos.getPosX() > targetDistance[1] && !isStopRequested()) {
-//            sleep(5);
-//            hw.frontLeft.setPower(-strafPower);
-//            hw.frontRight.setPower(strafPower);
-//            hw.backLeft.setPower(strafPower);
-//            hw.backRight.setPower(-strafPower);
-//            hw.imuPos.update();
-//            hDelta = hw.imuPos.getHeading(Units.AngularUnit.Degree);
-//            correction = correction(hDelta);
-//            BasicTelemetry(hw, xt, yt, correction, drivePower);
-//        }
-
-
+        // Funtions when robot stopped
         run.reset();
         hw.imuPos.update();
-        BasicTelemetry(hw, xt, yt, correction, drivePower);
+        BasicTelemetry(hw, correction, drivePower);
+        stopRobot(hw);
+
+        // Function to set lift position
+        SetLiftPos(hw, run, -3350, false, .6);
+
+        driveStraight(hw, false, 30.2, drivePower);
+
+        stopRobot(hw);
+
+        SetLiftPos(hw, run, -2480, true, 0.95);
+
+        // Opens Grips
+        gripPosition(hw, true);
+
+        int raiseLift = 100;
+        SetLiftPos(hw, run, -2480 - raiseLift, true, 0.65);
+
+        driveStraight(hw, true, 17.6, drivePower);
+
+        SetLiftPos(hw, run, 3, true, .6);
+
+        driveStrafeMilli(false,1350, hw, strafPower);
+
+        rotate(hw, true, 83, strafPower);
+
+        millisecondsPower = 0.5;
+        double millisecondsPowerStrafe = 0.5;
+        triangle(run, hw, -millisecondsPower, millisecondsPowerStrafe);
+
+        stopRobot(hw);
+    }
+
+    private static void stopRobot(Hardware hw) {
         hw.frontLeft.setPower(0);
         hw.frontRight.setPower(0);
         hw.backLeft.setPower(0);
         hw.backRight.setPower(0);
-        //rotate
-        hw.blueLift.setTargetPosition((int) targetDistance[3]);
-        hw.blackLift.setTargetPosition((int) targetDistance[3]);
+    }
 
-        hw.blackLift.setPower(.6);
-        hw.blueLift.setPower(.6);
-        hw.blackLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        hw.blueLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    // all defined functions:
+    private void rotate(Hardware hw, boolean isClockwise, double targetDegrees, double strafPower) {
+        double correction = 0;
+        if (isClockwise)
+            targetDegrees *= -1;
+        else
+            strafPower *= -1;
 
-
-//         Wait until there
-        run.reset();
-        while (hw.blackLift.getCurrentPosition() > -3130 && !isStopRequested()) {
-            BasicTelemetry(hw, xt, yt, correction, drivePower);
-            sleep(20);
-//            hw.frontLeft.setPower(0.09);
-//            hw.frontRight.setPower(0.09);
-//            hw.backLeft.setPower(0.09);
-//            hw.backRight.setPower(0.09);
-        }
-        // go towards the rods
-        while (hw.imuPos.getPosY() < targetDistance[1] && !isStopRequested()) {
-            sleep(1);
-            hw.frontLeft.setPower(drivePower + correction);
-            hw.frontRight.setPower(drivePower - correction);
-            hw.backLeft.setPower(drivePower + correction);
-            hw.backRight.setPower(drivePower - correction);
-            hw.imuPos.update();
-            hDelta = hw.imuPos.getHeading(Units.AngularUnit.Degree);
-            correction = correction(hDelta);
-            BasicTelemetry(hw, xt, yt, correction, drivePower);
-        }
-//        hw.blueExtend.setPosition(0.80);
-//        hw.blackExtend.setPosition(0.20);
-        hw.frontLeft.setPower(0);
-        hw.frontRight.setPower(0);
-        hw.backLeft.setPower(0);
-        hw.backRight.setPower(0);
-
-        hw.blueLift.setTargetPosition((int) targetDistance[2]);
-        hw.blackLift.setTargetPosition((int) targetDistance[2]);
-        hw.blackLift.setPower(0.95);
-        hw.blueLift.setPower(0.95);
-        hw.blackLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        hw.blueLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        run.reset();
-        while (hw.blackLift.getCurrentPosition() < -2505 && !isStopRequested() && run.milliseconds() < 450) {
-            BasicTelemetry(hw, xt, yt, correction, drivePower);
-            sleep(20);
-        }
-// Open Grippies
-        hw.blueGrip.setPosition(hw.openBlueGrip);
-        hw.blackGrip.setPosition(hw.openBlackGrip);
-
-        run.reset();
-        while (hw.blackLift.getCurrentPosition() > ((int) targetDistance[2] - 100) && !isStopRequested() && run.milliseconds() < 45) {
-            hw.blueLift.setTargetPosition((int) targetDistance[2] - 100);
-            hw.blackLift.setTargetPosition((int) targetDistance[2] - 100);
-            hw.blackLift.setPower(0.5);
-            hw.blueLift.setPower(0.5);
-            hw.blackLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            hw.blueLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            hw.blueGrip.setPosition(0.05);
-            hw.blackGrip.setPosition(0.95);
-            BasicTelemetry(hw, xt, yt, correction, drivePower);
-            sleep(20);
-        }
-
-        while (hw.imuPos.getPosY() > targetDistance[6] && !isStopRequested()) {
-            sleep(1);
-            hw.frontLeft.setPower(-drivePower + correction);
-            hw.frontRight.setPower(-drivePower - correction);
-            hw.backLeft.setPower(-drivePower + correction);
-            hw.backRight.setPower(-drivePower - correction);
-            hw.imuPos.update();
-            hDelta = hw.imuPos.getHeading(Units.AngularUnit.Degree);
-            correction = correction(hDelta);
-            BasicTelemetry(hw, xt, yt, correction, drivePower);
-        }
-
-        hw.blueLift.setTargetPosition(3);
-        hw.blackLift.setTargetPosition(3);
-
-        hw.blackLift.setPower(.6);
-        hw.blueLift.setPower(.6);
-        hw.blackLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        hw.blueLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        run.reset();
-        while (run.milliseconds() < 1350 && !isStopRequested()) {
-            sleep(1);
-            hw.frontLeft.setPower(-drivePower);
-            hw.frontRight.setPower(drivePower);
-            hw.backLeft.setPower(drivePower);
-            hw.backRight.setPower(-drivePower);
-            hw.imuPos.update();
-            hDelta = hw.imuPos.getHeading(Units.AngularUnit.Degree);
-            correction = correction(hDelta);
-            BasicTelemetry(hw, xt, yt, correction, drivePower);
-        }
-        while (hw.imuPos.getHeading(Units.AngularUnit.Degree) > -targetDistance[8] && !isStopRequested()) {
+        while (hw.imuPos.getHeading(Units.AngularUnit.Degree) > targetDegrees && !isStopRequested()) {
             sleep(1);
             hw.frontLeft.setPower(strafPower);
             hw.frontRight.setPower(-strafPower);
             hw.backLeft.setPower(strafPower);
             hw.backRight.setPower(-strafPower);
+
             hw.imuPos.update();
-            hDelta = hw.imuPos.getHeading(Units.AngularUnit.Degree);
-            correction = correction(hDelta);
-            BasicTelemetry(hw, xt, yt, correction, drivePower);
+            BasicTelemetry(hw, correction, strafPower);
         }
-        millisecondsPower = 0.5;
-        double millisecondsPowerStrafe = 0.5;
-        triangle(run, hw, -millisecondsPower, millisecondsPowerStrafe);
-        while (run.milliseconds() < 1000000 && !isStopRequested())
-            BasicTelemetry(hw);
+
+    }
+
+    private static void gripPosition(Hardware hw, boolean isGripOpen) {
+        if (isGripOpen) {
+            hw.blueGrip.setPosition(hw.openBlueGrip);
+            hw.blackGrip.setPosition(hw.openBlackGrip);
+        } else {
+            hw.blueGrip.setPosition(hw.closeBlueGrip);
+            hw.blackGrip.setPosition(hw.closeBlackGrip);
+        }
+    }
+
+    private void driveStrafeMilli(boolean isRight, double TargetMilliseconds, Hardware hw, double strafPower) {
+        double hDelta;
+        double correction = 0;
         run.reset();
-
-
-        while (run.milliseconds() < 100000 && !isStopRequested()) {
-            BasicTelemetry(hw, xt, yt, correction, drivePower);
-            sleep(20);
+        if (isRight) {
+            while (run.milliseconds() < TargetMilliseconds && !isStopRequested()) {
+                hw.frontLeft.setPower(strafPower);
+                hw.frontRight.setPower(-strafPower);
+                hw.backLeft.setPower(-strafPower);
+                hw.backRight.setPower(strafPower);
+                hw.imuPos.update();
+                hDelta = hw.imuPos.getHeading(Units.AngularUnit.Degree);
+                correction = correction(hDelta);
+                BasicTelemetry(hw, correction, strafPower);
+            }
+        } else {
+            while (run.milliseconds() < TargetMilliseconds && !isStopRequested()) {
+                hw.frontLeft.setPower(-strafPower);
+                hw.frontRight.setPower(strafPower);
+                hw.backLeft.setPower(strafPower);
+                hw.backRight.setPower(-strafPower);
+                hw.imuPos.update();
+                hDelta = hw.imuPos.getHeading(Units.AngularUnit.Degree);
+                correction = correction(hDelta);
+                BasicTelemetry(hw, correction, strafPower);
+            }
         }
+    }
 
+    private void driveStraight(Hardware hw, boolean isBackwards, double TargetDistance, double drivePower) {
+        double hDelta;
+        double correction = 0;
+        if (!isBackwards) {
+            while (Math.abs(hw.imuPos.getPosY()) < Math.abs(TargetDistance) && !isStopRequested()) {
+                sleep(1);
+                hw.frontLeft.setPower(drivePower + correction);
+                hw.frontRight.setPower(drivePower - correction);
+                hw.backLeft.setPower(drivePower + correction);
+                hw.backRight.setPower(drivePower - correction);
+                hw.imuPos.update();
+                hDelta = hw.imuPos.getHeading(Units.AngularUnit.Degree);
+                correction = correction(hDelta);
+                BasicTelemetry(hw, correction, drivePower);
+            }
+        } else {
+            while (Math.abs(hw.imuPos.getPosY()) > Math.abs(TargetDistance) && !isStopRequested()) {
+                sleep(1);
+                hw.frontLeft.setPower(-drivePower + correction);
+                hw.frontRight.setPower(-drivePower - correction);
+                hw.backLeft.setPower(-drivePower + correction);
+                hw.backRight.setPower(-drivePower - correction);
+                hw.imuPos.update();
+                hDelta = hw.imuPos.getHeading(Units.AngularUnit.Degree);
+                correction = correction(hDelta);
+                BasicTelemetry(hw, correction, drivePower);}
+        }
+    }
+
+    private void SetLiftPos(Hardware hw, ElapsedTime run, int liftTargetPosition, boolean isExpectedtoLoop, double liftPower) {
+        hw.blueLift.setTargetPosition(liftTargetPosition);
+        hw.blackLift.setTargetPosition(liftTargetPosition);
+        hw.blackLift.setPower(liftPower);
+        hw.blueLift.setPower(liftPower);
+        hw.blackLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        hw.blueLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        run.reset();
+        // isExpectedtoLoop is so that if the lift is expected to get stuck, there is another guideline.
+        if (isExpectedtoLoop) {
+            while (hw.blackLift.getCurrentPosition() < -liftTargetPosition && !isStopRequested() && run.milliseconds() < 1000) {
+                BasicTelemetry(hw, 0, liftPower);
+                sleep(20);
+            }
+            } else
+            while (hw.blackLift.getCurrentPosition() < -liftTargetPosition -20 && !isStopRequested()) {
+                BasicTelemetry(hw, 0, liftPower);
+                sleep(20);
+        }
     }
 
     private void triangle(ElapsedTime run, Hardware hw, double millisecondsPower, double millisecondsPowerStrafe) {
@@ -324,25 +299,20 @@ public class leftSidedClip extends LinearOpMode {
             hw.backRight.setPower(-millisecondsPower);
             BasicTelemetry(hw);
         }
-        hw.frontLeft.setPower(0);
-        hw.frontRight.setPower(0);
-        hw.backLeft.setPower(0);
-        hw.backRight.setPower(0);
+        stopRobot(hw);
     }
 
-    private void BasicTelemetry(Hardware hw, double xt, double yt, double correction, double drivePower) {
+    private void BasicTelemetry(Hardware hw, double correction, double drivePower) {
         TelemetryHelper.UpdateTelemetry(telemetry,
                 "bot heading", hw.imuPos.getHeading(Units.AngularUnit.Degree),
                 "Position X", hw.imuPos.getPosX(),
                 "Position Y", hw.imuPos.getPosY(),
-                "X", xt,
                 "bluePos", hw.blueLift.getCurrentPosition(),
                 "blackPos", hw.blackLift.getCurrentPosition(),
                 "buGripPos", hw.blueGrip.getPosition(),
                 "baGripPos", hw.blackGrip.getPosition(),
                 "blueTrgt", hw.blueLift.getTargetPosition(),
                 "blackTrgt", hw.blackLift.getTargetPosition(),
-                "Y", yt,
                 "correction", correction,
                 "Power", drivePower
         );
