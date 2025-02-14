@@ -134,7 +134,7 @@ public class HighTel extends LinearOpMode {
     private void controlResetImu() throws InterruptedException {
         // Reset imu if options is pressed.
         if (gamepad1.options) {
-            hw.imuPos.resetHeading();
+            hw.imuPos.reset();
         }
     }
 

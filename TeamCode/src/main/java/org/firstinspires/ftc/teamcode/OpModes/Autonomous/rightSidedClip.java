@@ -5,16 +5,13 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.RobotHardware.Hardware;
 import org.firstinspires.ftc.teamcode.TelemetryHelper;
 import org.firstinspires.ftc.teamcode.Units;
 
-import java.util.ArrayList;
-
 @Autonomous
-public class clip extends LinearOpMode {
+public class rightSidedClip extends LinearOpMode {
     //Hardware and variables
     Hardware hw;
 
@@ -46,14 +43,16 @@ public class clip extends LinearOpMode {
 
 
 
-
         double[] targetDistance = {
                 21.0,
                 -0.5,
                 30.2,
                 -3350,
                 -2480,
-                -200
+                -200,
+                17.6,
+                12.4,
+                83.0
         };
 
         hw.blueGrip.setPosition(hw.closeBlueGrip);
@@ -187,7 +186,7 @@ public class clip extends LinearOpMode {
         hw.blackGrip.setPosition(hw.openBlackGrip);
 
         run.reset();
-        while (hw.blackLift.getCurrentPosition() > ((int) targetDistance[4] - 100) && !isStopRequested()) {
+        while (hw.blackLift.getCurrentPosition() > ((int) targetDistance[4] - 100) && !isStopRequested() && run.milliseconds() < 45) {
             hw.blueLift.setTargetPosition((int) targetDistance[4] - 100);
             hw.blackLift.setTargetPosition((int) targetDistance[4] - 100);
             hw.blackLift.setPower(0.5);
@@ -200,7 +199,7 @@ public class clip extends LinearOpMode {
             sleep(20);
         }
 
-        while (hw.imuPos.getPosY() > targetDistance[0] && !isStopRequested()) {
+        while (hw.imuPos.getPosY() > targetDistance[6] && !isStopRequested()) {
             sleep(1);
             hw.frontLeft.setPower(-drivePower + correction);
             hw.frontRight.setPower(-drivePower - correction);
@@ -211,10 +210,7 @@ public class clip extends LinearOpMode {
             correction = correction(hDelta);
             BasicTelemetry(hw, xt, yt, correction, drivePower);
         }
-        hw.frontLeft.setPower(0);
-        hw.frontRight.setPower(0);
-        hw.backLeft.setPower(0);
-        hw.backRight.setPower(0);
+
         hw.blueLift.setTargetPosition(3);
         hw.blackLift.setTargetPosition(3);
 
@@ -222,6 +218,109 @@ public class clip extends LinearOpMode {
         hw.blueLift.setPower(.6);
         hw.blackLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         hw.blueLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        run.reset();
+        while (run.milliseconds() < 1300 && !isStopRequested()) {
+            sleep(1);
+            hw.frontLeft.setPower(drivePower);
+            hw.frontRight.setPower(-drivePower);
+            hw.backLeft.setPower(-drivePower);
+            hw.backRight.setPower(drivePower);
+            hw.imuPos.update();
+            hDelta = hw.imuPos.getHeading(Units.AngularUnit.Degree);
+            correction = correction(hDelta);
+            BasicTelemetry(hw, xt, yt, correction, drivePower);
+        }
+        while (hw.imuPos.getHeading(Units.AngularUnit.Degree) < targetDistance[8] && !isStopRequested()) {
+            sleep(1);
+            hw.frontLeft.setPower(-drivePower);
+            hw.frontRight.setPower(drivePower);
+            hw.backLeft.setPower(-drivePower);
+            hw.backRight.setPower(drivePower);
+            hw.imuPos.update();
+            hDelta = hw.imuPos.getHeading(Units.AngularUnit.Degree);
+            correction = correction(hDelta);
+            BasicTelemetry(hw, xt, yt, correction, drivePower);
+        }
+        while (run.milliseconds() < 4100 && !isStopRequested()) {
+            hw.frontLeft.setPower(0.5);
+            hw.frontRight.setPower(-0.5);
+            hw.backLeft.setPower(-0.5);
+            hw.backRight.setPower(0.5);
+            BasicTelemetry(hw);
+        }
+        run.reset();
+        while (run.milliseconds() < 270 && !isStopRequested()) {
+            hw.frontLeft.setPower(-0.5);
+            hw.frontRight.setPower(-0.5);
+            hw.backLeft.setPower(-0.5);
+            hw.backRight.setPower(-0.5);
+            BasicTelemetry(hw);
+        }
+        run.reset();
+        while (run.milliseconds() < 2300 && !isStopRequested()) {
+            hw.frontLeft.setPower(-0.5);
+            hw.frontRight.setPower(0.5);
+            hw.backLeft.setPower(0.5);
+            hw.backRight.setPower(-0.5);
+            BasicTelemetry(hw);
+        }
+        run.reset();
+        while (run.milliseconds() < 2300 && !isStopRequested()) {
+            hw.frontLeft.setPower(0.5);
+            hw.frontRight.setPower(-0.5);
+            hw.backLeft.setPower(-0.5);
+            hw.backRight.setPower(0.5);
+            BasicTelemetry(hw);
+        }
+        run.reset();
+        while (run.milliseconds() < 450 && !isStopRequested()) {
+            hw.frontLeft.setPower(-0.5);
+            hw.frontRight.setPower(-0.5);
+            hw.backLeft.setPower(-0.5);
+            hw.backRight.setPower(-0.5);
+            BasicTelemetry(hw);
+        }
+        run.reset();
+        while (run.milliseconds() < 2300 && !isStopRequested()) {
+            hw.frontLeft.setPower(-0.5);
+            hw.frontRight.setPower(0.5);
+            hw.backLeft.setPower(0.5);
+            hw.backRight.setPower(-0.5);
+            BasicTelemetry(hw);
+        }
+        run.reset();
+        while (run.milliseconds() < 2300 && !isStopRequested()) {
+            hw.frontLeft.setPower(0.5);
+            hw.frontRight.setPower(-0.5);
+            hw.backLeft.setPower(-0.5);
+            hw.backRight.setPower(0.5);
+            BasicTelemetry(hw);
+        }
+        run.reset();
+        while (run.milliseconds() < 265 && !isStopRequested()) {
+            hw.frontLeft.setPower(-0.5);
+            hw.frontRight.setPower(-0.5);
+            hw.backLeft.setPower(-0.5);
+            hw.backRight.setPower(-0.5);
+            BasicTelemetry(hw);
+        }
+        run.reset();
+        while (run.milliseconds() < 2500 && !isStopRequested()) {
+            hw.frontLeft.setPower(-0.5);
+            hw.frontRight.setPower(0.5);
+            hw.backLeft.setPower(0.5);
+            hw.backRight.setPower(-0.5);
+            BasicTelemetry(hw);
+        }
+        hw.frontLeft.setPower(0);
+        hw.frontRight.setPower(0);
+        hw.backLeft.setPower(0);
+        hw.backRight.setPower(0);
+        while (run.milliseconds() < 1000000 && !isStopRequested())
+            BasicTelemetry(hw);
+        run.reset();
+
+
         while (run.milliseconds() < 100000 && !isStopRequested()) {
             BasicTelemetry(hw, xt, yt, correction, drivePower);
             sleep(20);
@@ -260,6 +359,21 @@ public class clip extends LinearOpMode {
 
         }
         return correction;
+
+    }
+    private void BasicTelemetry(Hardware hw) {
+        hw.imuPos.update();
+        TelemetryHelper.UpdateTelemetry(telemetry,
+                "bot heading", hw.imuPos.getHeading(Units.AngularUnit.Degree),
+                "Position X", hw.imuPos.getPosX(),
+                "Position Y", hw.imuPos.getPosY(),
+                "bluePos", hw.blueLift.getCurrentPosition(),
+                "blackPos", hw.blackLift.getCurrentPosition(),
+                "buGripPos", hw.blueGrip.getPosition(),
+                "baGripPos", hw.blackGrip.getPosition(),
+                "blueTrgt", hw.blueLift.getTargetPosition(),
+                "blackTrgt", hw.blackLift.getTargetPosition()
+        );
 
     }
 }

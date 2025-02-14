@@ -7,6 +7,10 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.RobotHardware.Hardware;
+import org.firstinspires.ftc.teamcode.TelemetryHelper;
+import org.firstinspires.ftc.teamcode.Units;
+
 @Autonomous
 public class triangle extends LinearOpMode {
     //Hardware and variables
@@ -35,6 +39,7 @@ public class triangle extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        Hardware hw = new Hardware(hardwareMap);
         //All movement happen
         frontLeft = hardwareMap.dcMotor.get("frontLeft");
         backLeft = hardwareMap.dcMotor.get("backLeft");
@@ -63,84 +68,127 @@ public class triangle extends LinearOpMode {
 
         // While loop that moves to the left
         //strihgt
+        while (opModeIsActive() && !isStopRequested()) {
+            Triangle(run, hw);
+
+        }
+    }
+
+    private void Triangle(ElapsedTime run, Hardware hw) {
         while (run.milliseconds() < 700 && !isStopRequested()) {
             frontLeft.setPower(0.5);
             frontRight.setPower(0.5);
             backLeft.setPower(0.5);
             backRight.setPower(0.5);
+            BasicTelemetry(hw);
 
-        } run.reset();
+        }
+        run.reset();
         //starfe right
         while (run.milliseconds() < 945 && !isStopRequested()) {
             frontLeft.setPower(-0.5);
             frontRight.setPower(0.5);
             backLeft.setPower(0.5);
             backRight.setPower(-0.5);
-        } run.reset();
+            BasicTelemetry(hw);
+        }
+        run.reset();
         //rotate
-        while (run.milliseconds() < 720 && !isStopRequested()){
+        while (run.milliseconds() < 720 && !isStopRequested()) {
             frontLeft.setPower(-0.5);
             frontRight.setPower(0.5);
             backLeft.setPower(-0.5);
             backRight.setPower(0.5);
-        } run.reset();
+            BasicTelemetry(hw);
+        }
+        run.reset();
         //
-        while (run.milliseconds() < 1480 && !isStopRequested()){
+        while (run.milliseconds() < 1480 && !isStopRequested()) {
             frontLeft.setPower(0.5);
             frontRight.setPower(-0.5);
             backLeft.setPower(-0.5);
             backRight.setPower(0.5);
-        } run.reset();
-        while (run.milliseconds() < 325 && !isStopRequested()){
+            BasicTelemetry(hw);
+        }
+        run.reset();
+        while (run.milliseconds() < 325 && !isStopRequested()) {
             frontLeft.setPower(0.5);
             frontRight.setPower(0.5);
             backLeft.setPower(0.5);
             backRight.setPower(0.5);
-        } run.reset();
-        while (run.milliseconds() <2280 && !isStopRequested()){
+            BasicTelemetry(hw);
+        }
+        run.reset();
+        while (run.milliseconds() < 2280 && !isStopRequested()) {
             frontLeft.setPower(-0.5);
             frontRight.setPower(0.5);
             backLeft.setPower(0.5);
             backRight.setPower(-0.5);
-        }run.reset();
-        while (run.milliseconds() <2280 && !isStopRequested()){
+            BasicTelemetry(hw);
+        }
+        run.reset();
+        while (run.milliseconds() < 2280 && !isStopRequested()) {
             frontLeft.setPower(0.5);
             frontRight.setPower(-0.5);
             backLeft.setPower(-0.5);
             backRight.setPower(0.5);
-        }run.reset();
-        while (run.milliseconds() <500 && !isStopRequested()){
+            BasicTelemetry(hw);
+        }
+        run.reset();
+        while (run.milliseconds() < 500 && !isStopRequested()) {
             frontLeft.setPower(0.5);
             frontRight.setPower(0.5);
             backLeft.setPower(0.5);
             backRight.setPower(0.5);
-        }run.reset();
-        while (run.milliseconds() <1900 && !isStopRequested()){
+            BasicTelemetry(hw);
+        }
+        run.reset();
+        while (run.milliseconds() < 1900 && !isStopRequested()) {
             frontLeft.setPower(-0.5);
             frontRight.setPower(0.5);
             backLeft.setPower(0.5);
             backRight.setPower(-0.5);
-        }run.reset();
-        while (run.milliseconds() <1900 && !isStopRequested()){
+            BasicTelemetry(hw);
+        }
+        run.reset();
+        while (run.milliseconds() < 1900 && !isStopRequested()) {
             frontLeft.setPower(0.5);
             frontRight.setPower(-0.5);
             backLeft.setPower(-0.5);
             backRight.setPower(0.5);
-        }run.reset();
-        while (run.milliseconds() <300 && !isStopRequested()){
+            BasicTelemetry(hw);
+        }
+        run.reset();
+        while (run.milliseconds() < 300 && !isStopRequested()) {
             frontLeft.setPower(0.5);
             frontRight.setPower(0.5);
             backLeft.setPower(0.5);
             backRight.setPower(0.5);
-        }run.reset();
-        while (run.milliseconds() <1700 && !isStopRequested()){
+            BasicTelemetry(hw);
+        }
+        run.reset();
+        while (run.milliseconds() < 1700 && !isStopRequested()) {
             frontLeft.setPower(-0.5);
             frontRight.setPower(0.5);
             backLeft.setPower(0.5);
             backRight.setPower(-0.5);
-        }run.reset();
-
-
+            BasicTelemetry(hw);
+        }
+        run.reset();
     }
 
+    private void BasicTelemetry(Hardware hw) {
+        TelemetryHelper.UpdateTelemetry(telemetry,
+                "bot heading", hw.imuPos.getHeading(Units.AngularUnit.Degree),
+                "Position X", hw.imuPos.getPosX(),
+                "Position Y", hw.imuPos.getPosY(),
+                "bluePos", hw.blueLift.getCurrentPosition(),
+                "blackPos", hw.blackLift.getCurrentPosition(),
+                "buGripPos", hw.blueGrip.getPosition(),
+                "baGripPos", hw.blackGrip.getPosition(),
+                "blueTrgt", hw.blueLift.getTargetPosition(),
+                "blackTrgt", hw.blackLift.getTargetPosition()
+        );
+
+    }
 }
