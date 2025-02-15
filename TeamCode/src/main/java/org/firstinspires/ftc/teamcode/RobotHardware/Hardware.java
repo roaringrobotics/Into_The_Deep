@@ -14,6 +14,7 @@ public class Hardware {
         InitExtendServos(hardwareMap);
         InitGripServos(hardwareMap);
         InitImu(hardwareMap);
+        InitRobotLift(hardwareMap);
     }
 
     private void InitImu(HardwareMap hardwareMap) {
@@ -77,6 +78,13 @@ public class Hardware {
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+    private void InitRobotLift(HardwareMap hardwareMap) {
+//        blueRobotLift = hardwareMap.dcMotor.get("blueLift");
+//        blackRobotLift = hardwareMap.dcMotor.get("blueLift");
+//
+
+//        Define Servos eventually
     }
 
     public DcMotor frontRight;
